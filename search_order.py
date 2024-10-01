@@ -44,12 +44,15 @@ def fetch_from_db(query, params=None):
 def search_product():
     order_id = request.args.get('order_id')
     
-    if not order_id:
-        return jsonify({"error": "order_id parameter is required"}), 400
+    if order_id:
+        query = f"SELECT * FROM Orders WHERE order_id = {order_id}"
+    else:
+        query = "select * from Orders"
 
-    query = f"SELECT * FROM Orders WHERE order_id = {order_id}"
 
     results = fetch_from_db(query)
+    if not results:
+        return jsonify({"message": "No order found"}), 404
 
     if isinstance(results, str):
         return jsonify({"error": results}), 500
@@ -67,8 +70,11 @@ def search_product():
             "product_id": row[7],
             "created_at": row[8].strftime('%Y-%m-%d %H:%M:%S')
         })
+    if not order_id:
+        return jsonify({"message": "No order_id provided, returning all orders", "orders": result_list}), 200
+    return jsonify({"orders": result_list}), 200
 
-    return jsonify(result_list), 200
+    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8888, debug=True)
