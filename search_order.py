@@ -13,6 +13,8 @@ db_config = {
     'database': os.getenv('DB_NAME'),
     'port': int(os.getenv('DB_PORT', 3306))  # Default port is 3306 if not provided
 }
+
+
 # db_config = {
 #     'host': 'veggie-dogs-db.czrcm8qnf1xc.us-east-1.rds.amazonaws.com',
 #     'user': 'admin',
@@ -49,6 +51,23 @@ def fetch_from_db(query, params=None):
         if conn:
             cursor.close()
             conn.close()
+            
+            
+def insert_into_db(query, params):
+    conn = None
+    try:
+        conn = pymysql.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        conn.commit()
+        return "Success"
+    except pymysql.MySQLError as err:
+        return f"Error: {err}"
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
 
 @app.route('/search_order', methods=['GET'])
 def search_product():
@@ -125,6 +144,34 @@ def search_orders_by_id():
             "created_at": row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None
         })
     return jsonify({'orders': result_list}), 200
+
+@app.route('/post_order', methods=['POST'])
+def post_order():
+    data = request.json
+    required_fields = ["quantity", "total_price", "status", "seller_id", "buyer_id", "product_id"]
+    
+    # Check if all required fields are provided in the request data
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    query = """
+    INSERT INTO Orders (quantity, total_price, status, seller_id, buyer_id, product_id)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    params = (
+        data["quantity"],
+        data["total_price"],
+        data["status"],
+        data["seller_id"],
+        data["buyer_id"],
+        data["product_id"]
+    )
+
+    result = insert_into_db(query, params)
+    if result == "Success":
+        return jsonify({"message": "New order created"}), 201
+    else:
+        return jsonify({"error": result}), 500
 
 
 if __name__ == '__main__':
