@@ -124,7 +124,7 @@ def search_orders_by_id():
             "product_id": row[7],
             "created_at": row[8].strftime('%Y-%m-%d %H:%M:%S') if row[8] else None
         })
-    return jsonify(result_list), 200
+    return jsonify({'orders': result_list}), 200
 
 
 if __name__ == '__main__':
