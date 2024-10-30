@@ -31,14 +31,6 @@ db_config = {
 }
 
 
-# db_config = {
-#     'host': 'veggie-dogs-db.czrcm8qnf1xc.us-east-1.rds.amazonaws.com',
-#     'user': 'admin',
-#     'password': 'dbuserdbuser',
-#     'database': 'orders',
-#     'port': 3306
-# }
-
 def fetch_from_db(query, params=None):
     """
     Connects to the database, executes the given query, and returns the result.
