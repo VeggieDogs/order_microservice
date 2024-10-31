@@ -4,8 +4,29 @@ from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, request, jsonify, send_from_directory
 
+import logging
+from datetime import datetime
+
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000", methods=["GET", "POST"])
+
+logging.basicConfig(level=logging.INFO)
+
+@app.before_request
+def before_request_logging():
+    request.start_time = datetime.now()
+    logging.info(f"Incoming request: {request.method} {request.path}")
+
+@app.after_request
+def after_request_logging(response):
+    duration = datetime.now() - request.start_time
+    duration_ms = int(duration.total_seconds() * 1000)
+    
+    logging.info(
+        f"Completed request: {request.method} {request.path} "
+        f"Status: {response.status_code} Duration: {duration_ms}ms"
+    )
+    return response
 
 SWAGGER_URL = '/docs'
 API_URL = '/openapi.yaml'
