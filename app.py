@@ -1,11 +1,12 @@
 import os
+import sys
 import pymysql
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:3000", methods=["GET", "POST"])
+CORS(app)
 
 SWAGGER_URL = '/docs'
 API_URL = '/openapi.yaml'
@@ -183,4 +184,5 @@ def post_order():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8890, debug=True)
+    portNum = int(sys.argv[1]) if len(sys.argv) > 1 else 8888
+    app.run(host='0.0.0.0', port=portNum, debug=True)
