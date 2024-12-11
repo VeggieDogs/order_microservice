@@ -5,6 +5,8 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, request, jsonify, send_from_directory
 import logging
 from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000", methods=["GET", "POST"])
@@ -202,6 +204,10 @@ def post_order():
         }), 201
     else:
         return jsonify({"error": result}), 500
+    
+@app.route('/')
+def health_check():
+    return {"status": "Order service is up"}, 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8890, debug=True)
